@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "formTitle": "Form",
+        "formTitle": "Contact us",
         "formFields": {
           "values": [
             {
@@ -17,10 +17,10 @@
               "fieldType": "email"
             },
             {
-              "fieldLabel": "Curent firm"
+              "fieldLabel": "Current firm"
             },
             {
-              "fieldLabel": "Curent position"
+              "fieldLabel": "Current position"
             },
             {
               "fieldLabel": "Your need"
@@ -36,8 +36,7 @@
         0
       ],
       "id": "eab47051-3400-40d0-96b9-f69467b5fcb7",
-      "name": "On form submission",
-      "webhookId": "f5a11e54-778c-41f7-88f4-57465154960f"
+      "name": "On form submission"
     },
     {
       "parameters": {
@@ -46,13 +45,13 @@
             {
               "id": "2c1f04ea-0fe9-41e6-be2d-ab9600ebc195",
               "name": "Domaine",
-              "value": "",
+              "value": "={{ $json.Email.split(\"@\")[1].toLowerCase().trim() }}",
               "type": "string"
             },
             {
               "id": "cd501b92-01e5-46fb-b26a-e9eec78ddc6b",
               "name": "Email",
-              "value": "={{ $json.Email.split(\"@\")[1].toLowerCase().trim() }}",
+              "value": "={{ $json.Email }}",
               "type": "string"
             }
           ]
@@ -105,7 +104,7 @@
     },
     {
       "parameters": {
-        "url": "=https://{{ $json.Email }}",
+        "url": "=https://{{ $json.Domaine }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -125,7 +124,7 @@
           "values": [
             {
               "key": "titre",
-              "cssSelector": ".title"
+              "cssSelector": "title"
             },
             {
               "key": "description",
@@ -166,7 +165,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un assistant commercial pour une agence spécialisée dans l'automatisation des processus d'entreprise. Ta mission est de qualifier les prospects qui remplissent notre formulaire de contact, afin que l'équipe commerciale sache qui rappeler en priorité.\n\n## Informations du prospect (formulaire)\n- Prénom :{{ $('On form submission').item.json['First Name'] }}\n- Nom : {{ $('On form submission').item.json['Last Name'] }}\n- Email : {{ $('On form submission').item.json.Email }}\n- Entreprise : {{ $('On form submission').item.json['Curent firm'] }}\n- Poste :{{ $('On form submission').item.json['Curent position'] }}\n- Besoin exprimé : {{ $('On form submission').item.json['Your need'] }}\n## Informations issues du site web de l'entreprise\n- Titre du site : {{ $json.titre || \"non disponible\" }}\n- Description : {{ $json.description || \"non disponible\" }}\n- Extrait du contenu : {{ ($json.texte || \"non disponible\").slice(0, 3000) }}\n\nSi les informations du site sont \"non disponible\", c'est que le prospect a utilisé une adresse email personnelle ou que le site n'a pas pu être lu. Base-toi alors uniquement sur le formulaire, sans inventer d'informations sur l'entreprise.\n\n## Critères de notation (total sur 100)\n1. Besoin (sur [À TOI] points) : le besoin est-il concret, précis et lié à l'automatisation ? Un besoin détaillé avec des volumes ou des outils cités vaut plus qu'une demande vague.\n2. Poste (sur [À TOI] points) : la personne a-t-elle le pouvoir de décider ou d'influencer un achat ? Dirigeants et responsables de service valent plus que stagiaires ou étudiants.\n3. Taille de l'entreprise (sur [À TOI] points) : estime-la à partir des informations disponibles. Une entreprise de taille moyenne ou grande a généralement plus de processus à automatiser et plus de budget.\n4. Secteur (sur [À TOI] points) : les secteurs prioritaires sont [À TOI : liste tes secteurs].\n\nReste prudent : si une information manque, n'accorde pas de points par défaut pour ce critère.\n\n## Format de réponse\nRéponds uniquement avec un objet JSON, sans aucun texte avant ou après, au format suivant :\n{\n  \"score\": <nombre entier entre 0 et 100>,\n  \"resume\": \"<2 à 3 phrases résumant le prospect et son besoin pour un commercial>\",\n  \"justification\": \"<1 phrase expliquant la note>\"\n}",
+        "text": "=Tu es un assistant commercial pour une agence spécialisée dans l'automatisation des processus d'entreprise. Ta mission est de qualifier les prospects qui remplissent notre formulaire de contact, afin que l'équipe commerciale sache qui rappeler en priorité.\n\n## Informations du prospect (formulaire)\n- Prénom :{{ $('On form submission').item.json['First Name'] }}\n- Nom : {{ $('On form submission').item.json['Last Name'] }}\n- Email : {{ $('On form submission').item.json.Email }}\n- Entreprise : {{ $('On form submission').item.json['Current firm'] }}\n- Poste :{{ $('On form submission').item.json['Current position'] }}\n- Besoin exprimé : {{ $('On form submission').item.json['Your need'] }}\n## Informations issues du site web de l'entreprise\n- Titre du site : {{ $json.titre || \"non disponible\" }}\n- Description : {{ $json.description || \"non disponible\" }}\n- Extrait du contenu : {{ ($json.texte || \"non disponible\").slice(0, 3000) }}\n\nSi les informations du site sont \"non disponible\", c'est que le prospect a utilisé une adresse email personnelle ou que le site n'a pas pu être lu. Base-toi alors uniquement sur le formulaire, sans inventer d'informations sur l'entreprise.\n\n## Critères de notation (total sur 100)\n1. Besoin (sur 30 points) : le besoin est-il concret, précis et lié à l'automatisation ? Un besoin détaillé avec des volumes ou des outils cités vaut plus qu'une demande vague.\n2. Poste (sur 25 points) : la personne a-t-elle le pouvoir de décider ou d'influencer un achat ? Dirigeants et responsables de service valent plus que stagiaires ou étudiants.\n3. Taille de l'entreprise (sur 25 points) : estime-la à partir des informations disponibles. Une entreprise de taille moyenne ou grande a généralement plus de processus à automatiser et plus de budget.\n4. Secteur (sur 20 points) : le secteur a-t-il beaucoup de processus répétitifs à automatiser (ex. logistique, e-commerce, services B2B, immobilier, finance) ? Un secteur à fort potentiel d'automatisation vaut plus qu'un secteur où les tâches sont peu répétitives.\n\nReste prudent : si une information manque, n'accorde pas de points par défaut pour ce critère.\n\n## Format de réponse\nRéponds uniquement avec un objet JSON, sans aucun texte avant ou après, au format suivant :\n{\n  \"score\": <nombre entier entre 0 et 100>,\n  \"resume\": \"<2 à 3 phrases résumant le prospect et son besoin pour un commercial>\",\n  \"justification\": \"<1 phrase expliquant la note>\"\n}",
         "hasOutputParser": true,
         "messages": {
           "messageValues": []
@@ -200,13 +199,7 @@
         208
       ],
       "id": "0b788aa4-1190-468d-ad4b-6fc723cc6cd9",
-      "name": "Anthropic Chat Model",
-      "credentials": {
-        "anthropicApi": {
-          "id": "uR97YwSpLm9ArU5T",
-          "name": "Anthropic account"
-        }
-      }
+      "name": "Anthropic Chat Model"
     },
     {
       "parameters": {
@@ -226,17 +219,13 @@
         "operation": "upsert",
         "base": {
           "__rl": true,
-          "value": "appNBIyjxiuYefldD",
-          "mode": "list",
-          "cachedResultName": "Untitled Base",
-          "cachedResultUrl": "https://airtable.com/appNBIyjxiuYefldD"
+          "value": "",
+          "mode": "list"
         },
         "table": {
           "__rl": true,
-          "value": "tblfOkroA7FzQvfeb",
-          "mode": "list",
-          "cachedResultName": "Prospects",
-          "cachedResultUrl": "https://airtable.com/appNBIyjxiuYefldD/tblfOkroA7FzQvfeb"
+          "value": "",
+          "mode": "list"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -245,17 +234,16 @@
             "Justification IA": "={{ $json.output.justification }}",
             "Score": "={{ $json.output.score }}",
             "Domaine": "={{ $('Edit Fields').item.json.Domaine }}",
-            "Description du site": "={{ $('HTML').item.json.description }}",
+            "Description du site": "={{ $('Merge').item.json.description }}",
             "Prénom": "={{ $('On form submission').item.json['First Name'] }}",
             "Nom": "={{ $('On form submission').item.json['Last Name'] }}",
             "Email": "={{ $('On form submission').item.json.Email }}",
-            "Entreprise": "={{ $('On form submission').item.json['Curent firm'] }}",
-            "Poste": "={{ $('On form submission').item.json['Curent position'] }}",
-            "Besoin": "={{ $('On form submission').item.json['Your need'] }}",
-            "id": "={{ $('On form submission').item.json.Email }}"
+            "Entreprise": "={{ $('On form submission').item.json['Current firm'] }}",
+            "Poste": "={{ $('On form submission').item.json['Current position'] }}",
+            "Besoin": "={{ $('On form submission').item.json['Your need'] }}"
           },
           "matchingColumns": [
-            "id"
+            "Email"
           ],
           "schema": [
             {
@@ -500,13 +488,7 @@
         16
       ],
       "id": "33ccd68c-60d6-4fc6-be28-0840777263af",
-      "name": "Create or update a record",
-      "credentials": {
-        "airtableTokenApi": {
-          "id": "3tGNOqjHYWeROqf4",
-          "name": "Airtable Personal Access Token account"
-        }
-      }
+      "name": "Create or update a record"
     },
     {
       "parameters": {
@@ -544,8 +526,8 @@
     },
     {
       "parameters": {
-        "chatId": "7431846699",
-        "text": "=🔥 Nouveau prospect chaud !  👤 {{ $('On form submission').item.json['First Name'] }} {{ $('On form submission').item.json['Last Name'] }} 💼 {{ $('On form submission').item.json['Curent position'] }} chez {{ $('On form submission').item.json['Curent firm'] }} 📧 {{ $('Edit Fields').item.json[\"Email\"] }}  ⭐ Score : {{ $('Basic LLM Chain').item.json.output.score }}/100  📝 Résumé : {{ $('Basic LLM Chain').item.json.output.resume }}  👉 À rappeler rapidement !",
+        "chatId": "",
+        "text": "=🔥 Nouveau prospect chaud !  👤 {{ $('On form submission').item.json['First Name'] }} {{ $('On form submission').item.json['Last Name'] }} 💼 {{ $('On form submission').item.json['Current position'] }} chez {{ $('On form submission').item.json['Current firm'] }} 📧 {{ $('Edit Fields').item.json[\"Email\"] }}  ⭐ Score : {{ $('Basic LLM Chain').item.json.output.score }}/100  📝 Résumé : {{ $('Basic LLM Chain').item.json.output.resume }}  👉 À rappeler rapidement !",
         "additionalFields": {}
       },
       "type": "n8n-nodes-base.telegram",
@@ -555,14 +537,7 @@
         0
       ],
       "id": "72a3b92f-3e70-43c3-abfb-cb5f548d428d",
-      "name": "Send a text message",
-      "webhookId": "d0267522-41c2-4ca2-b809-998f7239ce64",
-      "credentials": {
-        "telegramApi": {
-          "id": "3MhZY6rpRMqwYjdG",
-          "name": "Telegram account"
-        }
-      }
+      "name": "Send a text message"
     }
   ],
   "pinData": {},
@@ -701,12 +676,9 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "bbd076be-342f-4e5c-976d-414c61358e77",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "51984ca7d70da434de89bed948633f1eb5f47685000ee16342f0e03e81666996"
+    "templateCredsSetupCompleted": true
   },
   "nodeGroups": [],
-  "id": "1B9j4ATCs0rx8DEH",
   "tags": []
 }
